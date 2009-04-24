@@ -1,0 +1,51 @@
+Task:	Write a CSS parser which will translate CSS rules written in a nested form into regular CSS rules that a browser can understand.
+
+The nested form is the same as standard CSS except for the ability to put CSS rules inside other CSS rules by prefixing the selector by the "&" symbol. The following represents the base case:
+
+	.standard_css_selector_1
+	{
+		/* standard css 1 */
+	
+		& .standard_css_selector_2
+		{
+			/* standard css 2 */
+		}
+	}
+
+This should be translated to:
+
+	.standard_css_selector_1
+	{
+		/* standard css 1 */
+	}
+
+	.standard_css_selector_1 .standard_css_selector_2
+	{
+		/* standard css 2 */
+	}
+	
+Notes:
+
+1. The parser should handle all types of selectors and must be able to match the included output.css file for input from the included input.css file.
+2. Order the rules appear is not important.
+3. Exactly matching the whitespace of the output is not necessary.
+4. You can use any language and any libraries to write the parser.
+5. List any libraries used with your submission so that we can duplicate the runtime environment on our machines.
+6. You can assume that any CSS input is correct (i.e. there is no need to validate the CSS).
+7. The space between the '&' symbol and the CSS selector is important. If there is no space between '&' and the first selector, there should be no space between the selectors in the resulting CSS rule. For example:
+
+	a
+	{
+		&:hover, :visited
+		{
+			color: red;
+		}
+		
+	}
+	
+should be translated to:
+
+	a:hover, a:visited
+	{
+		color: red;
+	}

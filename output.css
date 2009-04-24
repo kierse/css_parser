@@ -1,0 +1,60 @@
+body
+{
+	color:black;
+	background-color:white;
+	font-size:12px;
+}
+
+body div
+{
+	height:600px;
+	width:400px;
+}
+
+body div a
+{
+	color:blue;
+	font-size:12px;
+}
+
+body div.content
+{
+	height:200px;
+	width:200px;
+}
+
+body div.content a
+{
+	color:red;
+}
+
+body div.secondary_content
+{
+	height:200px;
+	width:200px;
+}
+
+body div.secondary_content a
+{
+	color:red;
+}
+
+body div.content a:hover
+{
+	color:green;
+}
+
+body div.content a:visited
+{
+	color:green;
+}
+
+body div.secondary_content a:hover
+{
+	color:green;
+}
+
+body div.secondary_content a:visited
+{
+	color:green;
+}

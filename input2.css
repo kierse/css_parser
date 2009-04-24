@@ -1,0 +1,1 @@
+body { color: black; & div { width: 400px; height: 600px; & a { color: blue; font-size: 12px; } } background-color: white; font-size: 12px; & div.content, div.secondary_content { width: 200px; height: 200px; & a { color: red; } & a { &:hover, :visited { color: green; } } } }
