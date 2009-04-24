@@ -5,7 +5,7 @@
 class Rule(object):
 	""" represents a CSS rule """
 
-	def __init__(self, selector, parent = "", attributes = []):
+	def __init__(self, selector, attributes = []):
 		
 #		# apply parent to selectors
 #		if parent != "":
@@ -25,7 +25,7 @@ class Rule(object):
 #			# replace & with given parent
 #			selectors = map(lambda x: x.replace("&", parent), selectors)
 
-		self._selector = parent + selector
+		self._selector = selector
 		self._attributes = attributes
 
 	def selector(self):
@@ -43,3 +43,8 @@ class Rule(object):
 				print "	%s" % attribute
 			print "}\n"
 
+	def __str__(self):
+		return self.__repr__()
+
+	def __repr__(self):
+		print "Rule(selector='%s', attributes=[%s])" % (self._selector, ",".join(map(lambda x: "'%s'" % x, self._attributes)))
