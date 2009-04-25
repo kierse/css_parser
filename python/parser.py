@@ -48,6 +48,16 @@ def build_ancestor_chains(ancestors = []):
 
 		return sibling_chains
 
+def build_rule(rule, attributes):
+	""" build CSS rule block using given rule and attributes """
+	
+	lines = [rule, "{"]
+	for attr in attributes:
+		lines.append("	%s" % attr)
+	lines.append("}")
+
+	return "\n".join(lines)
+
 def main():
 	if len(sys.argv) != 2:
 		raise IOError("must give filename to be converted")
@@ -60,6 +70,7 @@ def main():
 		file.close()
 
 	# break up CSS into a series of lines
+	data = data.replace("@", "\n@")
 	data = data.replace("&", "\n&")
 	data = data.replace("{", "\n{\n")
 	data = data.replace("}", "\n}\n")
@@ -76,9 +87,11 @@ def main():
 	selectors = []
 	attributes = []
 	rules = []
-	depth = 0
+	at_rules = []
+	in_at_rule = False
 	in_comment = False
 	in_selector = False
+
 
 	for line in data.splitlines():
 		
@@ -102,28 +115,41 @@ def main():
 		elif in_comment:
 			continue
 
+		elif line.startswith("@"):
+			if line.endswith(";"):
+				at_rules.append(line)
+			else:
+				in_at_rule = True
+				rules.append(line)
+			continue
+
 		elif line == "{":
-			depth += 1
-			attributes.append([])
+			if in_at_rule:
+				rules.append("{")
+			else:
+				attributes.append([])
 
 		elif line == "}":
-			attrs = attributes.pop()
-			chains = build_ancestor_chains(list(selectors))
-			for chain in chains:
-				rules.append(Rule(chain, attrs))
-				
-			depth -= 1
-			selectors.pop()
+			if in_at_rule and len(attributes) == 0:
+				in_at_rule = False
+				rules.append("}")
+			else:
+				attrs = attributes.pop()
+				if len(attrs):
+					chains = build_ancestor_chains(list(selectors))
+					for chain in chains:
+						rules.append(build_rule(chain, attrs))
+				selectors.pop()
 
 		elif line.endswith(";"):
-			attributes[depth-1].append(line)
+			attributes[len(attributes)-1].append(line)
 
 		else:
 			selectors.append(identify_selectors(line))
 
 	# display parsed CSS ruleset
 	for rule in rules:
-		rule.display()
+		print "%s\n" % rule
 
 if __name__ == "__main__":
 	main()
