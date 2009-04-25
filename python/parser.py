@@ -8,6 +8,11 @@ from rule import Rule
 debug = 1
 
 def identify_selectors(line):
+	""" 
+		split raw line on comma to get list of individual selectors.  
+		prepare each selector to receive ancestor chain by appending appropriate
+		prefix.
+	"""
 	
 	selectors = map(lambda x: x.strip(), line.split(","))
 
@@ -26,6 +31,10 @@ def identify_selectors(line):
 	return selectors
 
 def build_ancestor_chains(siblings, ancestors = []):
+	"""
+		recursively iterate over 2D list of selectors and construct
+		ancestral chain
+	"""
 
 	if len(ancestors) == 0:
 		return siblings
@@ -59,27 +68,45 @@ def main():
 	data = data.replace("{", "\n{\n")
 	data = data.replace("}", "\n}\n")
 	data = data.replace(";", ";\n")
-	data = data.replace("/*", "\n\*")
+	data = data.replace("/*", "\n/*")
 	data = data.replace("*/", "*/\n")
+	data = data.replace("<!--", "\n<!--")
+	data = data.replace("-->", "-->\n")
 	lines = data.splitlines(True)
 
 	selectors = []
 	attributes = []
 	rules = []
 	depth = 0
+	in_comment = False
 
 	for line in lines:
 		
-		# cleanup line a bit and skip empty lines
+		# cleanup line and remove any leading/trailing
+		# newline and whitespace characters
 		line = line.strip()
-		if line == "":
+		if line == "": continue
+
+		# look for start of new comment block.  Make sure to watch
+		# out for single line comments
+		if line.startswith("/*") or line.startswith("<!--"):
+			if not (line.endswith("*/") or line.endswith("-->")):
+				in_comment = True
 			continue
 
-		if line.find("{") >= 0:
+		elif line.endswith("*/") or line.endswith("-->"):
+			in_comment = False
+			continue
+
+		# ignore any lines that fall between /* and */ or <!-- and -->
+		elif in_comment:
+			continue
+
+		elif line == "{":
 			depth += 1
 			attributes.append([])
 
-		elif line.find("}") >= 0:
+		elif line == "}":
 			# -grab ancestor selectors at each depth going back to root
 			#  create new rule for each
 			# -push onto list of rules
@@ -92,7 +119,7 @@ def main():
 				
 			depth -= 1
 
-		elif line.find(";") >= 0:
+		elif line.endswith(";"):
 			attributes[depth-1].append(line)
 
 		else:
