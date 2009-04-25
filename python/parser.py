@@ -3,8 +3,6 @@
 import re
 import sys
 
-from rule import Rule
-
 def identify_selectors(line):
 	""" 
 		split raw line on comma to get list of individual selectors.  
