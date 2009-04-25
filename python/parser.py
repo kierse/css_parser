@@ -5,8 +5,6 @@ import sys
 
 from rule import Rule
 
-debug = 1
-
 def identify_selectors(line):
 	""" 
 		split raw line on comma to get list of individual selectors.  
@@ -30,17 +28,18 @@ def identify_selectors(line):
 
 	return selectors
 
-def build_ancestor_chains(siblings, ancestors = []):
+def build_ancestor_chains(ancestors = []):
 	"""
 		recursively iterate over 2D list of selectors and construct
 		ancestral chain
 	"""
 
+	siblings = ancestors.pop()
 	if len(ancestors) == 0:
 		return siblings
 
 	else:
-		ancestor_chains = build_ancestor_chains(ancestors.pop(), ancestors)
+		ancestor_chains = build_ancestor_chains(ancestors)
 		sibling_chains = []
 
 		for sibling in siblings:
@@ -48,10 +47,6 @@ def build_ancestor_chains(siblings, ancestors = []):
 				sibling_chains.append(sibling % chain)
 
 		return sibling_chains
-
-def _debug(obj):
-	if debug:
-		print obj
 
 def main():
 	if len(sys.argv) != 2:
@@ -65,6 +60,7 @@ def main():
 		file.close()
 
 	# break up CSS into a series of lines
+	data = data.replace("&", "\n&")
 	data = data.replace("{", "\n{\n")
 	data = data.replace("}", "\n}\n")
 	data = data.replace(";", ";\n")
@@ -72,18 +68,22 @@ def main():
 	data = data.replace("*/", "*/\n")
 	data = data.replace("<!--", "\n<!--")
 	data = data.replace("-->", "-->\n")
-	lines = data.splitlines(True)
+
+	# remove any newlines between selectors so
+	# they are properly detected
+	data = re.sub(",\s*\n+", ",", data)
 
 	selectors = []
 	attributes = []
 	rules = []
 	depth = 0
 	in_comment = False
+	in_selector = False
 
-	for line in lines:
+	for line in data.splitlines():
 		
 		# cleanup line and remove any leading/trailing
-		# newline and whitespace characters
+		# whitespace characters
 		line = line.strip()
 		if line == "": continue
 
@@ -107,17 +107,13 @@ def main():
 			attributes.append([])
 
 		elif line == "}":
-			# -grab ancestor selectors at each depth going back to root
-			#  create new rule for each
-			# -push onto list of rules
-			chains = build_ancestor_chains(selectors.pop(), list(selectors))
 			attrs = attributes.pop()
+			chains = build_ancestor_chains(list(selectors))
 			for chain in chains:
-				rule = Rule(chain, attrs)
-#				_debug(rule)
-				rules.append(rule)
+				rules.append(Rule(chain, attrs))
 				
 			depth -= 1
+			selectors.pop()
 
 		elif line.endswith(";"):
 			attributes[depth-1].append(line)
