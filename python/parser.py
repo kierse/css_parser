@@ -29,7 +29,7 @@ def identify_selectors(line):
 def build_ancestor_chains(ancestors = []):
 	"""
 		recursively iterate over 2D list of selectors and construct
-		ancestral chain
+		ancestral chain(s)
 	"""
 
 	siblings = ancestors.pop()
@@ -47,7 +47,20 @@ def build_ancestor_chains(ancestors = []):
 		return sibling_chains
 
 def build_rule(rule, attributes):
-	""" build CSS rule block using given rule and attributes """
+	""" 
+		build CSS rule block using given rule and attributes 
+		
+		ie:
+
+			selector
+			{
+				key1: value1
+				key2: value2
+				...
+				keyN: valueN
+			}
+
+	"""
 	
 	lines = [rule, "{"]
 	for attr in attributes:
@@ -130,6 +143,8 @@ def main():
 			if in_at_rule and len(attributes) == 0:
 				rules.append("{")
 
+		# detected closing block, build rule block
+		# and append to list
 		elif line == "}":
 			if in_at_rule and len(attributes) == 0:
 				in_at_rule = False
