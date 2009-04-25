@@ -54,11 +54,13 @@ def build_rule(rule, attributes):
 	lines = [rule, "{"]
 	for attr in attributes:
 		lines.append("	%s" % attr)
-	lines.append("}")
+	lines.append("}\n")
 
 	return "\n".join(lines)
 
 def main():
+	""" parser method """
+
 	if len(sys.argv) != 2:
 		raise IOError("must give filename to be converted")
 
@@ -88,11 +90,13 @@ def main():
 	attributes = []
 	rules = []
 	at_rules = []
+
 	in_at_rule = False
 	in_comment = False
 	in_selector = False
 
-
+	# iterate over given file lines and convert to valid
+	# CSS syntax
 	for line in data.splitlines():
 		
 		# cleanup line and remove any leading/trailing
@@ -115,6 +119,7 @@ def main():
 		elif in_comment:
 			continue
 
+		# look for at-rules.  watch out for both line and block rules
 		elif line.startswith("@"):
 			if line.endswith(";"):
 				at_rules.append(line)
@@ -124,10 +129,8 @@ def main():
 			continue
 
 		elif line == "{":
-			if in_at_rule:
+			if in_at_rule and len(attributes) == 0:
 				rules.append("{")
-			else:
-				attributes.append([])
 
 		elif line == "}":
 			if in_at_rule and len(attributes) == 0:
@@ -146,10 +149,12 @@ def main():
 
 		else:
 			selectors.append(identify_selectors(line))
+			attributes.append([])
 
 	# display parsed CSS ruleset
-	for rule in rules:
-		print "%s\n" % rule
+	for rule in (at_rules + rules):
+		print rule
 
 if __name__ == "__main__":
 	main()
+
