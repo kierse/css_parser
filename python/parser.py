@@ -98,18 +98,9 @@ def main():
 		else:
 			selectors.append(identify_selectors(line))
 
-	a = [
-		["body"],
-		["%s div", "%s span"]
-	]
-
-	b = build_ancestor_chains(["%s a"], a)
-	for i in b:
-		print b
-
-#	# display parsed CSS ruleset
-#	for rule in rules:
-#		print rule.display()
+	# display parsed CSS ruleset
+	for rule in rules:
+		rule.display()
 
 if __name__ == "__main__":
 	main()
