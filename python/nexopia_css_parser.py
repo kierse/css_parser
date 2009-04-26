@@ -27,24 +27,18 @@ def identify_selectors(line):
 	return selectors
 
 def build_ancestor_chains(ancestors = []):
-	"""
-		recursively iterate over 2D list of selectors and construct
-		ancestral chain(s)
-	"""
 
-	siblings = ancestors.pop()
-	if len(ancestors) == 0:
-		return siblings
+	chains = ancestors.pop()
 
-	else:
-		ancestor_chains = build_ancestor_chains(ancestors)
-		sibling_chains = []
+	ancestors.reverse()
+	for level in ancestors:
+		new_chains = []
+		for ancestor in level:
+			for chain in chains:
+				new_chains.append(chain % ancestor)
+		chains = new_chains
 
-		for sibling in siblings:
-			for chain in ancestor_chains:
-				sibling_chains.append(sibling % chain)
-
-		return sibling_chains
+	return chains
 
 def build_rule(rule, attributes):
 	""" 
